@@ -1,0 +1,1 @@
+{% if att.status == "em_andamento" %}<span class="pill pill--accent">{{ att.get_current_step_display }}</span>{% elif att.status == "concluido" %}<span class="pill pill--ok">Concluído</span>{% else %}<span class="pill pill--danger">Cancelado</span>{% endif %}

@@ -1,0 +1,20 @@
+{% extends "layouts/app.html" %}{% load static %}
+{% block title %}{{ title }} — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<a class="back-link" href="{{ cancel_url }}">‹ Voltar</a>
+{% include "partials/form_errors.html" %}
+<form method="post" class="card form-grid" novalidate data-person-form
+      data-cnpj-url="{% url 'integrations:cnpj' %}" data-cpf-url="{% url 'integrations:cpf' %}">
+  {% csrf_token %}
+  {% include "customers/_person_fields.html" %}
+  {% include "partials/field.html" with field=form.phone %}
+  {% include "partials/field.html" with field=form.email %}
+  {% include "partials/field.html" with field=form.address wrapper_class="form-grid__full" %}
+  <div class="form-actions form-grid__full">
+    <a class="btn btn--ghost" href="{{ cancel_url }}">Cancelar</a>
+    <button type="submit" class="btn btn--primary">Salvar</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/person-form.js' %}" defer></script>{% endblock %}

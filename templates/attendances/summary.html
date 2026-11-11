@@ -1,0 +1,28 @@
+{% extends "layouts/app.html" %}
+{% block title %}{{ attendance.code }} — {{ APP_NAME }}{% endblock %}
+{% block page_title %}Atendimento {{ attendance.code }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <a class="back-link" href="{% url 'attendances:list' %}">‹ Atendimentos</a>
+  {% with att=attendance %}{% include "attendances/_status_pill.html" %}{% endwith %}
+</div>
+{% if attendance.is_editable %}
+<p class="form-actions"><a class="btn btn--primary" href="{% url 'attendances:detail' attendance.public_id %}">Continuar atendimento</a></p>
+{% endif %}
+{% if not attendance.is_editable and attendance.status == "concluido" %}{% include "reports/_panel.html" %}{% endif %}
+{% include "attendances/_summary.html" %}
+{% if attendance.signature %}
+<section class="card">
+  <h2 class="section-title">Assinatura</h2>
+  {% if attendance.signature.refused %}
+  <p class="refusal-text">{{ refusal_text }}</p>
+  {% else %}
+  <img class="signature-saved" src="{% url 'signatures:file' attendance.public_id %}" alt="Assinatura do cliente">
+  <p class="muted">Registrada em {{ attendance.signature.created_at|date:"d/m/Y H:i" }}.</p>
+  {% endif %}
+  {% if attendance.review_qr_presented_at %}
+  <p><span class="pill pill--ok">QR Code de avaliação apresentado ao cliente</span> <small class="muted">{{ attendance.review_qr_note }}</small></p>
+  {% elif attendance.review_requested %}<p><span class="pill pill--ok">Avaliação solicitada ao cliente</span></p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

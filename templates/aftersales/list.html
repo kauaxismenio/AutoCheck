@@ -1,0 +1,41 @@
+{% extends "layouts/app.html" %}
+{% block title %}Pós-venda — {{ APP_NAME }}{% endblock %}
+{% block page_title %}Pós-venda{% endblock %}
+{% block content %}
+<form method="get" class="card filters" role="search">
+  <div class="field filters__grow">
+    <label for="f-q">Busca</label>
+    <input type="search" id="f-q" name="q" value="{{ q }}" placeholder="Código, placa, cliente ou documento">
+  </div>
+  <div class="field"><label for="f-de">Concluído de</label><input type="date" id="f-de" name="de" value="{{ start }}"></div>
+  <div class="field"><label for="f-ate">até</label><input type="date" id="f-ate" name="ate" value="{{ end }}"></div>
+  <label class="check filters__check"><input type="checkbox" name="pendentes" value="1"{% if only_pending %} checked{% endif %}> <span>Só com recomendações pendentes</span></label>
+  <button class="btn" type="submit">Filtrar</button>
+</form>
+<p class="muted">Recomendação pendente é a recusada pelo cliente e ainda não substituída em atendimento posterior do mesmo veículo.</p>
+
+{% for row in rows %}
+<article class="card aftersale">
+  <div class="section-head">
+    <div>
+      <a href="{% url 'attendances:summary' row.attendance.public_id %}"><strong>{{ row.attendance.vehicle.plate_formatted }}</strong> — {{ row.attendance.vehicle.brand }} {{ row.attendance.vehicle.model }}</a><br>
+      <span class="muted">{{ row.attendance.customer }} · {{ row.attendance.customer.phone_formatted }}</span>
+    </div>
+    <div class="aftersale__meta">
+      <span>{{ row.attendance.completed_at|date:"d/m/Y" }}</span>
+      <span class="muted">{{ row.attendance.mileage }} km · {{ row.attendance.code }}</span>
+    </div>
+  </div>
+  <dl class="data-list">
+    <dt>Serviços realizados</dt><dd>{{ row.services|join:", "|default:"—" }}</dd>
+    <dt>Peças substituídas</dt><dd>{{ row.parts|join:", "|default:"—" }}</dd>
+    <dt>Serviços recusados</dt><dd>{{ row.refused|join:", "|default:"—" }}</dd>
+    <dt>Recomendações pendentes</dt><dd>{% if row.pending %}<span class="pill pill--danger">{{ row.pending|join:", " }}</span>{% else %}—{% endif %}</dd>
+    <dt>Dados mantidos até</dt><dd>{{ row.attendance.retention_until|date:"d/m/Y" }}</dd>
+  </dl>
+</article>
+{% empty %}
+<section class="card"><p class="empty">Nenhum atendimento concluído encontrado.</p></section>
+{% endfor %}
+{% include "partials/pagination.html" %}
+{% endblock %}

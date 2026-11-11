@@ -1,0 +1,83 @@
+{% extends "layouts/app.html" %}{% load static %}
+{% block title %}Serviços e peças — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{{ attendance.code }}{% endblock %}
+{% block content %}
+{% include "attendances/_progress.html" %}
+<div class="page-head"><div><h1 class="page-title">Serviços e substituição de peças</h1>
+  <p class="muted">Registre a decisão do cliente para cada componente recomendado.</p></div></div>
+{% include "attendances/_errors.html" %}
+
+<section class="summary-block">
+  <h2 class="section-title">Componentes recomendados</h2>
+  {% for rep in replacements %}
+  <article class="card part-card" id="peca-{{ rep.pk }}">
+    <div class="part-card__head">
+      <h3>{{ rep.component_name }}</h3>
+      {% if rep.replaced %}<span class="pill pill--ok">Substituída</span>
+      {% elif rep.decision == AUTORIZADO %}<span class="pill pill--accent">Autorizado</span>
+      {% elif rep.decision == NAO_AUTORIZADO %}<span class="pill pill--danger">Não autorizado</span>
+      {% else %}<span class="pill pill--warn">Aguardando decisão</span>{% endif %}
+    </div>
+
+    {% if rep.decision == AGUARDANDO %}
+    <form method="post" action="{% url 'replacements:decision' attendance.public_id rep.pk %}" class="decision">{% csrf_token %}
+      <button class="btn" name="decision" value="{{ AUTORIZADO }}" type="submit">Cliente autorizou</button>
+      <button class="btn" name="decision" value="{{ NAO_AUTORIZADO }}" type="submit">Cliente não autorizou</button>
+    </form>
+    {% elif rep.decision == NAO_AUTORIZADO %}
+    <p class="muted">Recusa registrada{% if rep.decided_at %} em {{ rep.decided_at|date:"d/m/Y H:i" }}{% endif %}. A recomendação continua no relatório final.</p>
+    {% else %}
+    <div class="part-photos">
+      {% include "photos/_slot.html" with slot=rep.old_slot %}
+      {% include "photos/_slot.html" with slot=rep.new_slot %}
+    </div>
+    <form method="post" action="{% url 'replacements:confirm' attendance.public_id rep.pk %}" class="inline-form">{% csrf_token %}
+      <div class="field">
+        <label for="part-{{ rep.pk }}">Identificação da peça (marca, código; opcional)</label>
+        <input type="text" id="part-{{ rep.pk }}" name="part_description" maxlength="200" value="{{ rep.part_description }}">
+      </div>
+      <button class="btn btn--primary" type="submit">{% if rep.replaced %}Atualizar substituição{% else %}Confirmar substituição realizada{% endif %}</button>
+    </form>
+    {% endif %}
+
+    {% if rep.decision != AGUARDANDO %}
+    <form method="post" action="{% url 'replacements:decision' attendance.public_id rep.pk %}" class="change-decision" data-confirm="Alterar a decisão? As fotos e a substituição registradas para esta peça serão removidas.">{% csrf_token %}
+      <button class="btn btn--ghost btn--sm" name="decision" value="{{ AGUARDANDO }}" type="submit">Alterar decisão</button>
+    </form>
+    {% endif %}
+  </article>
+  {% empty %}
+  <section class="card"><p class="muted">Nenhum componente foi marcado como SUBSTITUIR neste atendimento.</p></section>
+  {% endfor %}
+</section>
+
+<section class="card">
+  <h2 class="section-title">Serviços realizados</h2>
+  {% if services %}
+  <ul class="result-list">
+    {% for service in services %}
+    <li>
+      <span>{{ service.description }} <small class="muted">— {{ workshop.name }}</small></span>
+      {% if not service.replacement_id %}
+      <form method="post" action="{% url 'replacements:delete_service' attendance.public_id service.pk %}">{% csrf_token %}
+        <button class="btn btn--ghost btn--sm" type="submit">Excluir</button>
+      </form>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}<p class="muted">Nenhum serviço registrado até agora.</p>{% endif %}
+  <form method="post" action="{% url 'replacements:add_service' attendance.public_id %}" class="inline-form add-service">{% csrf_token %}
+    <div class="field">
+      <label for="service-description">Outro serviço realizado (ex.: alinhamento)</label>
+      <input type="text" id="service-description" name="description" maxlength="200">
+    </div>
+    <button class="btn" type="submit">Adicionar serviço</button>
+  </form>
+</section>
+
+<form method="post" class="form-actions step-actions">{% csrf_token %}
+  <button type="submit" class="btn btn--primary btn--lg" data-step-submit>Concluir serviços e avançar</button>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/photo-widget.js' %}" defer></script>{% endblock %}

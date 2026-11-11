@@ -1,0 +1,25 @@
+{% extends "layouts/app.html" %}
+{% block title %}{{ title }} — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<a class="back-link" href="{% url 'platform_admin:list' %}">‹ Oficinas</a>
+{% include "partials/form_errors.html" %}
+<form method="post" class="card form-grid" novalidate>
+  {% csrf_token %}
+  {% for field in form %}{% include "partials/field.html" with wrapper_class="form-grid__full" %}{% endfor %}
+  <div class="form-actions form-grid__full">
+    <button type="submit" class="btn btn--primary">Salvar</button>
+  </div>
+</form>
+{% if item and account %}
+<section class="card settings-section">
+  <h2 class="section-title">Senha de acesso</h2>
+  <p class="muted">Gera uma nova senha segura para a oficina. A senha atual deixa de valer.</p>
+  <form method="post" action="{% url 'platform_admin:reset_password' item.pk %}" data-confirm="Gerar uma nova senha para esta oficina?">{% csrf_token %}
+    <button type="submit" class="btn btn--sm">Gerar nova senha</button>
+  </form>
+</section>
+{% elif item %}
+<p class="muted">Esta oficina ainda não tem acesso. Informe o e-mail e salve para criar a conta com uma senha segura.</p>
+{% endif %}
+{% endblock %}

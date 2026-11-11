@@ -1,0 +1,25 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}Entrar — {{ APP_NAME }}{% endblock %}
+{% block body %}
+<main class="login">
+  <section class="login__card">
+    <div class="login__brand">
+      <svg class="icon icon--brand" aria-hidden="true"><use href="{% static 'img/icons.svg' %}#wrench"></use></svg>
+      <div>
+        <h1>{{ APP_NAME }}</h1>
+        <p>{{ workshop.name }}</p>
+      </div>
+    </div>
+    {% include "partials/messages.html" %}
+    {% include "partials/form_errors.html" %}
+    <form method="post" class="form-stack">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      {% include "partials/field.html" with field=form.username %}
+      {% include "partials/field.html" with field=form.password %}
+      <button type="submit" class="btn btn--primary btn--block">Entrar</button>
+    </form>
+    <p class="login__hint">Esqueceu a senha? Peça ao responsável pela oficina para definir uma nova.</p>
+  </section>
+</main>
+{% endblock %}

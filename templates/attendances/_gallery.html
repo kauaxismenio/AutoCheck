@@ -1,0 +1,8 @@
+<div class="gallery">
+  {% for entry in entries %}
+  <figure>
+    <a href="{% url 'photos:file' attendance.public_id entry.photo.pk %}" target="_blank" rel="noopener"><img src="{% url 'photos:file' attendance.public_id entry.photo.pk %}" alt="{{ entry.label }}" loading="lazy"></a>
+    <figcaption>{{ entry.label }}</figcaption>
+  </figure>
+  {% endfor %}
+</div>

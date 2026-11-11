@@ -1,0 +1,22 @@
+{% if attendances %}
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Código</th><th>Data</th><th>Veículo</th><th>Cliente</th><th>Km</th><th>Serviços e peças</th><th>Não autorizadas</th><th>Situação</th><th>Relatório</th></tr></thead>
+    <tbody>
+    {% for att in attendances %}
+      <tr>
+        <td data-label="Código"><a href="{% url 'attendances:summary' att.public_id %}"><strong>{{ att.code }}</strong></a></td>
+        <td data-label="Data">{{ att.created_at|date:"d/m/Y" }}</td>
+        <td data-label="Veículo">{{ att.vehicle.plate_formatted }}</td>
+        <td data-label="Cliente">{{ att.customer }}</td>
+        <td data-label="Km">{{ att.mileage }}</td>
+        <td data-label="Serviços e peças">{{ att.service_names|join:", "|default:"—" }}</td>
+        <td data-label="Não autorizadas">{{ att.refused_names|join:", "|default:"—" }}</td>
+        <td data-label="Situação">{% include "attendances/_status_pill.html" %}</td>
+        <td data-label="Relatório">{% if att.last_report %}<a href="{% url 'reports:download' att.public_id att.last_report.pk %}">Baixar v{{ att.last_report.version }}</a>{% else %}—{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}<p class="empty">Nenhum atendimento registrado.</p>{% endif %}

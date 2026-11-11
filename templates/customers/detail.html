@@ -1,0 +1,47 @@
+{% extends "layouts/app.html" %}
+{% block title %}{{ customer }} — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{{ customer }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <a class="back-link" href="{% url 'customers:list' %}">‹ Clientes</a>
+  <div class="form-actions">
+    <a class="btn" href="{% url 'customers:edit' customer.pk %}">Editar</a>
+    <form method="post" action="{% url 'customers:delete' customer.pk %}" data-confirm="Excluir este cliente?">{% csrf_token %}
+      <button class="btn btn--danger" type="submit">Excluir</button>
+    </form>
+  </div>
+</div>
+<div class="columns">
+  <section class="card">
+    <h2 class="section-title">Dados do cliente</h2>
+    <dl class="data-list">
+      {% if customer.full_name %}<dt>Nome</dt><dd>{{ customer.full_name }}</dd>{% endif %}
+      {% if customer.cpf %}<dt>CPF</dt><dd>{{ customer.cpf_formatted }}</dd>{% endif %}
+      {% if customer.legal_name %}<dt>Razão Social</dt><dd>{{ customer.legal_name }}</dd>{% endif %}
+      {% if customer.trade_name %}<dt>Nome Fantasia</dt><dd>{{ customer.trade_name }}</dd>{% endif %}
+      {% if customer.cnpj %}<dt>CNPJ</dt><dd>{{ customer.cnpj_formatted }}</dd>{% endif %}
+      {% if customer.contact_person %}<dt>Responsável</dt><dd>{{ customer.contact_person }}</dd>{% endif %}
+      <dt>Telefone</dt><dd>{{ customer.phone_formatted }}</dd>
+      <dt>E-mail</dt><dd>{{ customer.email|default:"—" }}</dd>
+      {% if customer.address %}<dt>Endereço</dt><dd>{{ customer.address }}</dd>{% endif %}
+    </dl>
+  </section>
+  <section class="card">
+    <div class="section-head">
+      <h2 class="section-title">Veículos</h2>
+      <a class="btn btn--sm" href="{% url 'vehicles:create' %}?cliente={{ customer.pk }}">+ Veículo</a>
+    </div>
+    {% if vehicles %}
+    <ul class="row-list">
+      {% for vehicle in vehicles %}
+      <li><a href="{% url 'vehicles:detail' vehicle.pk %}"><span><strong>{{ vehicle.plate_formatted }}</strong> — {{ vehicle.brand }} {{ vehicle.model }}</span></a></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="muted">Nenhum veículo cadastrado.</p>{% endif %}
+  </section>
+</div>
+<section class="card card--flush history-block">
+  <h2 class="section-title card__heading">Atendimentos</h2>
+  {% include "attendances/_history_table.html" %}
+</section>
+{% endblock %}

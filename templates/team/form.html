@@ -1,0 +1,14 @@
+{% extends "layouts/app.html" %}
+{% block title %}{{ title }} — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<a class="back-link" href="{{ list_url }}">‹ {{ page.plural }}</a>
+{% include "partials/form_errors.html" %}
+<form method="post" class="card form-grid" novalidate>
+  {% csrf_token %}
+  {% for field in form %}{% include "partials/field.html" %}{% endfor %}
+  <div class="form-actions form-grid__full">
+    <button type="submit" class="btn btn--primary">Salvar</button>
+  </div>
+</form>
+{% endblock %}

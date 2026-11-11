@@ -1,0 +1,32 @@
+{% extends "layouts/app.html" %}
+{% block title %}Veículos — {{ APP_NAME }}{% endblock %}
+{% block page_title %}Veículos{% endblock %}
+{% block content %}
+<div class="page-head">
+  <form method="get" class="toolbar toolbar--grow" role="search">
+    <input type="search" name="q" value="{{ q }}" placeholder="Placa, marca, modelo ou proprietário" aria-label="Buscar veículo">
+    <button class="btn" type="submit">Buscar</button>
+  </form>
+  <a class="btn btn--primary" href="{% url 'vehicles:create' %}">+ Novo veículo</a>
+</div>
+<section class="card card--flush">
+  {% if page.object_list %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Placa</th><th>Veículo</th><th>Proprietário</th><th>Última km</th></tr></thead>
+      <tbody>
+      {% for vehicle in page.object_list %}
+        <tr>
+          <td data-label="Placa"><a href="{% url 'vehicles:detail' vehicle.pk %}"><strong>{{ vehicle.plate_formatted }}</strong></a></td>
+          <td data-label="Veículo">{{ vehicle.brand }} {{ vehicle.model }}{% if vehicle.year %} ({{ vehicle.year }}){% endif %}</td>
+          <td data-label="Proprietário">{{ vehicle.customer }}</td>
+          <td data-label="Última km">{{ vehicle.last_mileage|default_if_none:"—" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="empty">Nenhum veículo encontrado.</p>{% endif %}
+</section>
+{% include "partials/pagination.html" %}
+{% endblock %}

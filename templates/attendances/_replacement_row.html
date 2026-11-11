@@ -1,0 +1,16 @@
+<div class="summary-part">
+  <div class="summary-part__head">
+    <strong>{{ row.name }}</strong>
+    {% if row.replaced %}<span class="pill pill--ok">Substituída</span>
+    {% elif row.decision == "autorizado" %}<span class="pill pill--accent">Autorizada</span>
+    {% elif row.decision == "nao_autorizado" %}<span class="pill pill--danger">Recusada pelo cliente</span>
+    {% else %}<span class="pill pill--warn">Aguardando decisão</span>{% endif %}
+  </div>
+  {% if row.part %}<p class="muted">Peça: {{ row.part }}</p>{% endif %}
+  {% if row.old_photos or row.new_photos %}
+  <div class="gallery">
+    {% for photo in row.old_photos %}<figure><a href="{% url 'photos:file' attendance.public_id photo.pk %}" target="_blank" rel="noopener"><img src="{% url 'photos:file' attendance.public_id photo.pk %}" alt="Peça antiga" loading="lazy"></a><figcaption>Peça antiga</figcaption></figure>{% endfor %}
+    {% for photo in row.new_photos %}<figure><a href="{% url 'photos:file' attendance.public_id photo.pk %}" target="_blank" rel="noopener"><img src="{% url 'photos:file' attendance.public_id photo.pk %}" alt="Peça nova" loading="lazy"></a><figcaption>Peça nova</figcaption></figure>{% endfor %}
+  </div>
+  {% endif %}
+</div>

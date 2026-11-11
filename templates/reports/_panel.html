@@ -1,0 +1,75 @@
+<section class="card">
+  <div class="section-head">
+    <h2 class="section-title">Relatório e e-mails</h2>
+    <form method="post" action="{% url 'reports:generate' attendance.public_id %}">{% csrf_token %}
+      <button class="btn btn--sm" type="submit">Gerar nova versão</button>
+    </form>
+  </div>
+
+  {% if latest_report %}
+  <p><a class="btn btn--primary" href="{% url 'reports:download' attendance.public_id latest_report.pk %}">Baixar relatório PDF (versão {{ latest_report.version }})</a></p>
+  {% else %}<p class="message message--error">Nenhum relatório gerado ainda.</p>{% endif %}
+
+  {% if not smtp_ok %}
+  <p class="message">SMTP ainda não configurado: nenhum e-mail foi enviado. Depois de definir os dados no <code>.env</code>, os envios da fila automática saem sozinhos; os demais pendentes, pelo botão “Enviar pendentes”.</p>
+  {% endif %}
+  {% if smtp_ok and queue_stalled %}
+  <p class="message message--error">A fila de e-mails parece parada: há envio atrasado. Verifique se o trabalhador da fila está rodando ou use os botões abaixo.</p>
+  {% endif %}
+  {% if not can_send_workshop %}
+  <p class="message message--error">E-mail do responsável não configurado. <a href="{% url 'workshop:settings' %}">Abrir configurações</a>.</p>
+  {% endif %}
+
+  {% if dispatches %}
+  <div class="table-wrap dispatch-table">
+    <table class="table">
+      <thead><tr><th>Destinatário</th><th>E-mail</th><th>Versão</th><th>Situação</th><th>Tentativas</th><th>Registro</th></tr></thead>
+      <tbody>
+      {% for dispatch in dispatches %}
+        <tr>
+          <td data-label="Destinatário">{{ dispatch.get_recipient_type_display }}{% if dispatch.is_manual_resend %} <small class="muted">(reenvio)</small>{% endif %}</td>
+          <td data-label="E-mail">{{ dispatch.recipient_email }}</td>
+          <td data-label="Versão">{{ dispatch.report.version }}</td>
+          <td data-label="Situação">
+            {% if dispatch.is_confirmed %}<span class="pill pill--ok">{{ dispatch.get_status_display }}</span>
+            {% elif dispatch.status == "falhou" or dispatch.status == "devolvido" %}<span class="pill pill--danger">{{ dispatch.get_status_display }}</span>
+            {% else %}<span class="pill pill--warn">{{ dispatch.get_status_display }}</span>{% endif %}
+          </td>
+          <td data-label="Tentativas">{{ dispatch.attempts }}</td>
+          <td data-label="Registro">{% if dispatch.accepted_at %}{{ dispatch.accepted_at|date:"d/m/Y H:i" }}{% else %}<small>{{ dispatch.last_error }}{% if dispatch.next_attempt_at %} Próxima tentativa automática: {{ dispatch.next_attempt_at|date:"d/m/Y H:i" }}.{% endif %}</small>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <p class="muted">Os e-mails saem automaticamente na finalização. Use os botões abaixo só para recuperar uma falha.</p>
+  <div class="form-actions mail-actions">
+    <form method="post" action="{% url 'mailing:send_pending' attendance.public_id %}">{% csrf_token %}
+      <button class="btn btn--sm" type="submit">Enviar pendentes</button>
+    </form>
+    {% if can_send_workshop %}
+    <form method="post" action="{% url 'mailing:resend' attendance.public_id %}">{% csrf_token %}
+      <input type="hidden" name="recipient" value="oficina">
+      <button class="btn btn--sm btn--ghost" type="submit">Reenviar à oficina</button>
+    </form>
+    {% endif %}
+    {% if can_send_customer %}
+    <form method="post" action="{% url 'mailing:resend' attendance.public_id %}">{% csrf_token %}
+      <input type="hidden" name="recipient" value="cliente">
+      <button class="btn btn--sm btn--ghost" type="submit">Reenviar ao cliente</button>
+    </form>
+    {% endif %}
+  </div>
+
+  {% if reports|length > 1 %}
+  <h3 class="section-title versions-title">Versões anteriores</h3>
+  <ul class="result-list">
+    {% for report in reports %}{% if not forloop.first %}
+    <li><span>Versão {{ report.version }} <small class="muted">— {{ report.generated_at|date:"d/m/Y H:i" }}</small></span>
+      <a class="btn btn--sm btn--ghost" href="{% url 'reports:download' attendance.public_id report.pk %}">Baixar</a></li>
+    {% endif %}{% endfor %}
+  </ul>
+  {% endif %}
+</section>

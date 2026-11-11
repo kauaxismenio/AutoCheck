@@ -1,0 +1,4 @@
+-r base.txt
+psycopg[binary]>=3.2,<4.0                     # driver PostgreSQL
+gunicorn>=23.0; sys_platform != "win32"        # servidor WSGI (Linux)
+waitress>=3.0; sys_platform == "win32"         # servidor WSGI (Windows)

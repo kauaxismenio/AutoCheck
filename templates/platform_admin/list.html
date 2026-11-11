@@ -1,0 +1,42 @@
+{% extends "layouts/app.html" %}
+{% block title %}Oficinas — {{ APP_NAME }}{% endblock %}
+{% block page_title %}Oficinas{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Oficinas cadastradas</h1>
+    <p class="muted">Administração da plataforma. Só você acessa esta área.</p>
+  </div>
+  <a class="btn btn--primary btn--lg" href="{% url 'platform_admin:create' %}">+ Nova oficina</a>
+</div>
+
+<section class="stats" aria-label="Indicadores">
+  <div class="stat"><span class="stat__value">{{ stats.total }}</span><span class="stat__label">Oficinas cadastradas</span></div>
+  <div class="stat stat--ok"><span class="stat__value">{{ stats.active }}</span><span class="stat__label">Ativas</span></div>
+  <div class="stat stat--accent"><span class="stat__value">{{ stats.recent }}</span><span class="stat__label">Com acesso nos últimos {{ recent_days }} dias</span></div>
+</section>
+
+<section class="card card--flush">
+  {% if workshops %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Oficina</th><th>E-mail de acesso</th><th>Situação</th><th>Atendimentos</th><th>Último acesso</th><th></th></tr></thead>
+      <tbody>
+      {% for item in workshops %}
+        <tr>
+          <td data-label="Oficina"><strong>{{ item.name }}</strong></td>
+          <td data-label="E-mail de acesso">{% if item.login %}{{ item.login.username }}{% else %}<span class="pill pill--warn">Sem acesso criado</span>{% endif %}</td>
+          <td data-label="Situação">{% if item.is_active %}<span class="pill pill--ok">Ativa</span>{% else %}<span class="pill">Desativada</span>{% endif %}</td>
+          <td data-label="Atendimentos">{{ item.attendance_count }}</td>
+          <td data-label="Último acesso">{{ item.last_login|date:"d/m/Y H:i"|default:"—" }}</td>
+          <td class="table__actions"><a class="btn btn--sm" href="{% url 'platform_admin:edit' item.pk %}">Editar</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted settings-empty">Nenhuma oficina cadastrada.</p>
+  {% endif %}
+</section>
+{% endblock %}

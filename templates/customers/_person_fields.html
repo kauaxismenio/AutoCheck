@@ -1,0 +1,33 @@
+{% load static %}
+<div class="form-grid__full">
+  {{ form.person_type }}
+  <div class="choice-cards" role="group" aria-label="Identificação do cliente">
+    <button type="button" class="choice-card" data-person-card="pf" aria-pressed="{% if form.person_type.value == 'pf' %}true{% else %}false{% endif %}">
+      <strong>CPF</strong><small>Pessoa Física</small>
+      <svg class="choice-card__mark" aria-hidden="true"><use href="{% static 'img/icons.svg' %}#check"></use></svg>
+    </button>
+    <button type="button" class="choice-card" data-person-card="pj" aria-pressed="{% if form.person_type.value == 'pj' %}true{% else %}false{% endif %}">
+      <strong>CNPJ</strong><small>Pessoa Jurídica</small>
+      <svg class="choice-card__mark" aria-hidden="true"><use href="{% static 'img/icons.svg' %}#check"></use></svg>
+    </button>
+    <button type="button" class="choice-card" data-person-card="ambos" aria-pressed="{% if form.person_type.value == 'ambos' %}true{% else %}false{% endif %}">
+      <strong>Ambos</strong><small>Informar CPF e CNPJ</small>
+      <svg class="choice-card__mark" aria-hidden="true"><use href="{% static 'img/icons.svg' %}#check"></use></svg>
+    </button>
+  </div>
+  {% for error in form.person_type.errors %}<small class="field__error">{{ error }}</small>{% endfor %}
+</div>
+
+<div class="form-grid form-grid__full{% if form.person_type.value == 'pj' %} is-hidden{% endif %}" data-person-section="pf">
+  {% include "partials/field.html" with field=form.full_name force_required=True %}
+  {% include "partials/field.html" with field=form.cpf wrapper_class="js-cpf" %}
+  {% if form.cpf_not_informed %}{% include "partials/field.html" with field=form.cpf_not_informed wrapper_class="form-grid__full" %}{% endif %}
+</div>
+
+<div class="form-grid form-grid__full{% if form.person_type.value == 'pf' %} is-hidden{% endif %}" data-person-section="pj">
+  {% include "partials/field.html" with field=form.cnpj wrapper_class="js-cnpj" %}
+  {% if form.cnpj_not_informed %}{% include "partials/field.html" with field=form.cnpj_not_informed wrapper_class="form-grid__full" %}{% endif %}
+  {% include "partials/field.html" with field=form.legal_name force_required=True %}
+  {% include "partials/field.html" with field=form.trade_name %}
+  {% include "partials/field.html" with field=form.contact_person %}
+</div>

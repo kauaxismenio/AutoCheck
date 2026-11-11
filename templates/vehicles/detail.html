@@ -1,0 +1,29 @@
+{% extends "layouts/app.html" %}
+{% block title %}{{ vehicle.plate_formatted }} — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{{ vehicle.plate_formatted }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <a class="back-link" href="{% url 'vehicles:list' %}">‹ Veículos</a>
+  <div class="form-actions">
+    <a class="btn" href="{% url 'vehicles:edit' vehicle.pk %}">Editar</a>
+    <form method="post" action="{% url 'vehicles:delete' vehicle.pk %}" data-confirm="Excluir este veículo?">{% csrf_token %}
+      <button class="btn btn--danger" type="submit">Excluir</button>
+    </form>
+  </div>
+</div>
+<section class="card">
+  <dl class="data-list">
+    <dt>Placa</dt><dd>{{ vehicle.plate_formatted }}</dd>
+    <dt>Marca e modelo</dt><dd>{{ vehicle.brand }} {{ vehicle.model }}</dd>
+    <dt>Ano</dt><dd>{{ vehicle.year|default:"—" }}</dd>
+    <dt>Cor</dt><dd>{{ vehicle.color|default:"—" }}</dd>
+    <dt>Última quilometragem</dt><dd>{% if vehicle.last_mileage is not None %}{{ vehicle.last_mileage }} km{% else %}—{% endif %}</dd>
+    {% if vehicle.chassis %}<dt>Chassi</dt><dd>{{ vehicle.chassis }}</dd>{% endif %}
+    <dt>Proprietário atual</dt><dd><a href="{% url 'customers:detail' vehicle.customer_id %}">{{ vehicle.customer }}</a></dd>
+  </dl>
+</section>
+<section class="card card--flush history-block">
+  <h2 class="section-title card__heading">Atendimentos</h2>
+  {% include "attendances/_history_table.html" %}
+</section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% if form.non_field_errors %}
+<ul class="messages">
+  {% for error in form.non_field_errors %}<li class="message message--error">{{ error }}</li>{% endfor %}
+</ul>
+{% elif form.errors %}
+<ul class="messages">
+  <li class="message message--error">Confira os campos destacados abaixo.</li>
+</ul>
+{% endif %}

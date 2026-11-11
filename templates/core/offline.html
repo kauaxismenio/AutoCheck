@@ -1,0 +1,20 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sem conexão — AutoCheck</title>
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+  <main class="page">
+    <section class="card error-page">
+      <h1>Sem conexão</h1>
+      <p class="muted">O AutoCheck precisa de internet para funcionar. Verifique a conexão e tente de novo.</p>
+      <a class="btn btn--primary" href="/">Tentar de novo</a>
+    </section>
+  </main>
+</body>
+</html>

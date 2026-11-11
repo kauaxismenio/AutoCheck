@@ -1,0 +1,2 @@
+# Dependências de execução. Para desenvolvimento e testes: pip install -r requirements/development.txt
+-r requirements/base.txt

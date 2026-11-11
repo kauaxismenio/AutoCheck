@@ -1,0 +1,53 @@
+{% extends "layouts/app.html" %}{% load static %}
+{% block title %}Revisão e assinatura — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{{ attendance.code }}{% endblock %}
+{% block content %}
+{% include "attendances/_progress.html" %}
+<div class="page-head"><div><h1 class="page-title">Revisão e finalização</h1>
+  <p class="muted">Confira o atendimento com o cliente antes de assinar.</p></div></div>
+{% include "attendances/_errors.html" %}
+{% include "attendances/_summary.html" %}
+
+<form method="post" class="card form-stack" data-signature-form novalidate>
+  {% csrf_token %}
+  <h2 class="section-title">Assinatura do cliente</h2>
+  <p>Ao assinar, o cliente confirma que foi informado sobre as condições do veículo, as recomendações e as
+    autorizações e recusas apresentadas acima.</p>
+
+  {% if signature and not signature_is_current %}
+  <p class="message message--error">O atendimento mudou depois da assinatura registrada. Colete a assinatura novamente.</p>
+  {% elif signature and not signature.refused %}
+  <div>
+    <p class="muted">Assinatura já registrada para esta versão. Assine abaixo somente para substituí-la.</p>
+    <img class="signature-saved" src="{% url 'signatures:file' attendance.public_id %}" alt="Assinatura registrada">
+  </div>
+  {% endif %}
+
+  <div data-signature-area{% if signature and signature.refused and signature_is_current %} class="is-hidden"{% endif %}>
+    <div class="signature-box">
+      <canvas data-signature-canvas aria-label="Área para assinatura com o dedo ou caneta"></canvas>
+      <div class="signature-box__hint">Assine aqui</div>
+    </div>
+    <div class="signature-actions"><button type="button" class="btn btn--ghost btn--sm" data-signature-clear>Limpar</button></div>
+    <input type="hidden" name="signature_data" data-signature-data>
+  </div>
+
+  <label class="check highlight-check">
+    <input type="checkbox" name="refused" data-signature-refused{% if signature and signature.refused and signature_is_current %} checked{% endif %}>
+    <span>CLIENTE NÃO ACEITOU ASSINAR</span>
+  </label>
+  <p class="refusal-text{% if not signature or not signature.refused or not signature_is_current %} is-hidden{% endif %}" data-refusal-text>{{ refusal_text }}</p>
+
+  {% include "signatures/_review_qr.html" %}
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn--primary btn--lg" data-step-submit>Finalizar atendimento</button>
+  </div>
+</form>
+{% if workshop.google_review_url %}
+{# Fora do formulário da assinatura; os botões da seção se ligam a eles pelo atributo form. #}
+<form id="review-qr-present" method="post" action="{% url 'signatures:review_qr' attendance.public_id %}" data-review-qr-form>{% csrf_token %}<input type="hidden" name="action" value="present"></form>
+<form id="review-qr-clear" method="post" action="{% url 'signatures:review_qr' attendance.public_id %}" data-review-qr-form>{% csrf_token %}<input type="hidden" name="action" value="clear"></form>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/signature-pad.js' %}" defer></script><script src="{% static 'js/review-qr.js' %}" defer></script>{% endblock %}

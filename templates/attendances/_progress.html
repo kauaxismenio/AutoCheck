@@ -1,0 +1,14 @@
+{% if steps %}
+<nav class="steps" aria-label="Etapas do atendimento">
+  <ol>
+    {% for step in steps %}
+    <li class="steps__item steps__item--{{ step.state }}{% if step.active %} is-active{% endif %}"{% if step.active %} aria-current="step"{% endif %}>
+      {% if step.url %}<a href="{{ step.url }}">{% else %}<span class="steps__inner">{% endif %}
+        <span class="steps__dot">{% if step.state == "done" %}✓{% else %}{{ step.number }}{% endif %}</span>
+        <span class="steps__label">{{ step.label }}</span>
+      {% if step.url %}</a>{% else %}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</nav>
+{% endif %}

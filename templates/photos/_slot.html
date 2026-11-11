@@ -1,0 +1,21 @@
+{% load static %}
+<div class="photo-slot{% if slot.photos %} photo-slot--done{% elif slot.required %} photo-slot--missing{% endif %}"
+     data-photo-slot data-upload-url="{{ slot.upload_url }}" data-phase="{{ slot.phase }}"
+     data-category="{{ slot.category }}" data-target="{{ slot.target }}"{% if slot.required %} data-required{% endif %}>
+  <div class="photo-slot__head">
+    <span>{{ slot.label }}</span>
+    {% if slot.required %}<span class="pill" data-photo-badge>{% if slot.photos %}Enviada{% else %}Obrigatória{% endif %}</span>{% endif %}
+  </div>
+  <div class="photo-thumbs" data-photo-thumbs>{% for photo in slot.photos %}<div class="photo-thumb" data-photo-thumb>
+      <a href="{{ photo.url }}" target="_blank" rel="noopener"><img src="{{ photo.url }}" alt="{{ slot.label }}" loading="lazy"></a>
+      <button type="button" class="photo-thumb__remove" data-photo-remove="{{ photo.delete_url }}" aria-label="Excluir foto">
+        <svg aria-hidden="true" width="16" height="16"><use href="{% static 'img/icons.svg' %}#x"></use></svg>
+      </button>
+    </div>{% endfor %}</div>
+  <label class="photo-add">
+    <svg class="icon" aria-hidden="true"><use href="{% static 'img/icons.svg' %}#camera"></use></svg>
+    <span>Tirar foto</span>
+    <input type="file" accept="image/*" capture="environment" data-photo-input aria-label="Tirar foto: {{ slot.label }}">
+  </label>
+  <small class="photo-status" data-photo-status role="status"></small>
+</div>

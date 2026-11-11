@@ -1,0 +1,59 @@
+<section class="card">{% include "attendances/_identification.html" %}</section>
+
+<section class="card">
+  <h2 class="section-title">Recomendações, autorizações e recusas</h2>
+  {% for row in summary.recommended %}{% include "attendances/_replacement_row.html" %}{% empty %}
+  <p class="muted">Nenhuma substituição foi recomendada.</p>{% endfor %}
+</section>
+
+<section class="card">
+  <h2 class="section-title">Serviços realizados</h2>
+  {% if summary.services %}
+  <ul class="result-list">{% for service in summary.services %}<li><span>{{ service.description }}</span></li>{% endfor %}</ul>
+  {% else %}<p class="muted">Nenhum serviço registrado.</p>{% endif %}
+</section>
+
+{% if summary.checklist or summary.tires %}
+<details class="card summary-block">
+  <summary><strong>Checklist e pneus</strong></summary>
+  <div class="details-body">
+    <div class="columns">
+    {% for group in summary.checklist %}
+      <div>
+        <h3 class="section-title">{{ group.name }}</h3>
+        <ul class="result-list">
+          {% for item in group.items %}
+          <li><span>{{ item.name }}{% if item.notes %}<br><small class="muted">{{ item.notes }}</small>{% endif %}</span>
+            <span class="pill {% if item.is_ok %}pill--ok{% elif item.result %}pill--danger{% else %}pill--warn{% endif %}">{{ item.label }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+    {% if summary.tires %}
+      <div>
+        <h3 class="section-title">Pneus</h3>
+        <ul class="result-list">
+          {% for tire in summary.tires %}
+          <li><span>{{ tire.label }}<br><small class="muted">{% if tire.psi is not None %}{{ tire.psi }} PSI{% endif %}{% if tire.twi is not None %} · TWI {{ tire.twi }} mm{% endif %}</small></span>
+            <span class="pill {% if tire.is_ok %}pill--ok{% elif tire.result %}pill--danger{% else %}pill--warn{% endif %}">{{ tire.condition }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    </div>
+  </div>
+</details>
+{% endif %}
+
+{% if summary.checkin_photos %}
+<details class="card summary-block">
+  <summary><strong>Fotografias de entrada</strong> ({{ summary.checkin_photos|length }})</summary>
+  <div class="details-body">{% include "attendances/_gallery.html" with entries=summary.checkin_photos %}</div>
+</details>
+{% endif %}
+{% if summary.checkout_photos %}
+<details class="card summary-block">
+  <summary><strong>Fotografias de saída</strong> ({{ summary.checkout_photos|length }})</summary>
+  <div class="details-body">{% include "attendances/_gallery.html" with entries=summary.checkout_photos %}</div>
+</details>
+{% endif %}

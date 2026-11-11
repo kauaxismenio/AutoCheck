@@ -1,0 +1,31 @@
+{% extends "layouts/app.html" %}
+{% block title %}{{ page.plural }} — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{{ page.plural }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <a class="back-link" href="{% url 'workshop:settings' %}">‹ Configurações</a>
+  <a class="btn btn--primary" href="{{ create_url }}">Novo {{ page.singular }}</a>
+</div>
+<p class="muted">{{ page.note }}</p>
+<section class="card card--flush">
+  {% if rows %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Nome</th>{% if page.show_phone %}<th>Telefone</th>{% endif %}<th>Situação</th><th></th></tr></thead>
+      <tbody>
+      {% for row in rows %}
+        <tr>
+          <td data-label="Nome"><strong>{{ row.member.name }}</strong></td>
+          {% if page.show_phone %}<td data-label="Telefone">{{ row.member.phone_formatted|default:"—" }}</td>{% endif %}
+          <td data-label="Situação">{% if row.member.is_active %}<span class="pill pill--ok">Ativo</span>{% else %}<span class="pill">Desativado</span>{% endif %}</td>
+          <td class="table__actions"><a class="btn btn--sm" href="{{ row.edit_url }}">Editar</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted settings-empty">Nenhum {{ page.singular }} cadastrado.</p>
+  {% endif %}
+</section>
+{% endblock %}

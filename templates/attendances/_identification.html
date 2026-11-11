@@ -1,0 +1,10 @@
+<div class="columns">
+  <div>
+    <h3 class="section-title">Cliente</h3>
+    <dl class="data-list">{% for label, value in summary.customer_rows %}<dt>{{ label }}</dt><dd>{{ value }}</dd>{% endfor %}</dl>
+  </div>
+  <div>
+    <h3 class="section-title">Veículo</h3>
+    <dl class="data-list">{% for label, value in summary.vehicle_rows %}<dt>{{ label }}</dt><dd>{{ value }}</dd>{% endfor %}</dl>
+  </div>
+</div>

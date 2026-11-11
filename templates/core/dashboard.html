@@ -1,0 +1,54 @@
+{% extends "layouts/app.html" %}{% load static %}
+{% block title %}Dashboard — {{ APP_NAME }}{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+{% url 'attendances:new' as new_url %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ workshop.name }}</h1>
+    <p class="muted">Resumo da oficina.</p>
+  </div>
+  {% if new_url %}<a class="btn btn--primary btn--lg" href="{{ new_url }}">+ Novo atendimento</a>{% endif %}
+</div>
+
+<section class="stats" aria-label="Indicadores">
+  <div class="stat"><span class="stat__value">{{ stats.total }}</span><span class="stat__label">Atendimentos realizados</span></div>
+  <div class="stat stat--accent"><span class="stat__value">{{ stats.in_progress }}</span><span class="stat__label">Em andamento</span></div>
+  <div class="stat stat--ok"><span class="stat__value">{{ stats.completed }}</span><span class="stat__label">Concluídos</span></div>
+  <div class="stat"><span class="stat__value">{{ stats.customers }}</span><span class="stat__label">Clientes cadastrados</span></div>
+  <div class="stat"><span class="stat__value">{{ stats.vehicles }}</span><span class="stat__label">Veículos cadastrados</span></div>
+</section>
+
+<div class="columns">
+  <section class="card">
+    <h2 class="section-title">Atendimentos em andamento</h2>
+    {% if open_attendances %}
+    <ul class="row-list">
+      {% for att in open_attendances %}
+      <li>
+        <a href="{% url 'attendances:detail' att.public_id %}">
+          <span><strong>{{ att.vehicle.plate_formatted }}</strong> — {{ att.customer }}</span>
+          <span class="pill pill--accent">{{ att.get_current_step_display }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="muted">Nenhum atendimento em andamento.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <h2 class="section-title">Atividades recentes</h2>
+    {% if activity %}
+    <ul class="activity">
+      {% for entry in activity %}
+      <li>
+        <span><strong>{{ entry.who }}</strong> {{ entry.what }}{% if entry.attendance %}
+          <a href="{% url 'attendances:detail' entry.attendance.public_id %}">{{ entry.attendance.code }}</a>{% endif %}</span>
+        <time class="muted" datetime="{{ entry.when|date:'c' }}">{{ entry.when|date:"d/m H:i" }}</time>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="muted">Nenhuma atividade registrada ainda.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

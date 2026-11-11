@@ -1,0 +1,33 @@
+<section class="review-qr" aria-labelledby="review-qr-title">
+  <h2 class="section-title" id="review-qr-title">Avaliação no Google</h2>
+  {% if workshop.google_review_url %}
+  <div class="review-qr__body">
+    <div class="review-qr__invite">
+      <p class="review-qr__headline">Como foi sua experiência na {{ workshop.name }}?</p>
+      <p>Sua opinião ajuda outros motoristas e nos ajuda a melhorar. Convidamos você a deixar sua avaliação no Google.</p>
+      <ol class="review-qr__steps">
+        <li>Abra a câmera do seu celular.</li>
+        <li>Aponte para o código ao lado.</li>
+        <li>Toque no link que aparecer e faça sua avaliação.</li>
+      </ol>
+    </div>
+    <img class="qr-image" src="{% url 'workshop:review_qr' %}" alt="QR Code para avaliar a oficina no Google" width="240" height="240">
+  </div>
+  <div class="review-qr__action" data-review-qr>
+    <div data-review-qr-pending{% if attendance.review_qr_presented_at %} class="is-hidden"{% endif %}>
+      <button type="submit" form="review-qr-present" class="btn btn--primary">QR CODE APRESENTADO AO CLIENTE</button>
+    </div>
+    <div class="review-qr__done{% if not attendance.review_qr_presented_at %} is-hidden{% endif %}" data-review-qr-done>
+      <span class="pill pill--ok">QR Code apresentado ao cliente</span>
+      <small class="muted" data-review-qr-note>{{ attendance.review_qr_note }}</small>
+      <button type="submit" form="review-qr-clear" class="btn btn--ghost btn--sm">Desfazer</button>
+    </div>
+    <small class="field__error is-hidden" data-review-qr-error role="alert"></small>
+    <small class="muted">Este registro indica apenas que o código foi mostrado. Não confirma que uma avaliação foi publicada.</small>
+  </div>
+  {% else %}
+  <p class="muted">O link de avaliação da oficina ainda não foi configurado.
+    <a href="{% url 'workshop:settings' %}#avaliacao-google">Configurar agora</a>.
+  </p>
+  {% endif %}
+</section>

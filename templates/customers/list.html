@@ -1,0 +1,31 @@
+{% extends "layouts/app.html" %}
+{% block title %}Clientes — {{ APP_NAME }}{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+{% block content %}
+<div class="page-head">
+  <form method="get" class="toolbar toolbar--grow" role="search">
+    <input type="search" name="q" value="{{ q }}" placeholder="Nome, CPF, CNPJ, telefone ou placa" aria-label="Buscar cliente">
+    <button class="btn" type="submit">Buscar</button>
+  </form>
+  <a class="btn btn--primary" href="{% url 'customers:create' %}">+ Novo cliente</a>
+</div>
+<section class="card card--flush">
+  {% if page.object_list %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Nome</th><th>Documento</th><th>Telefone</th></tr></thead>
+      <tbody>
+      {% for customer in page.object_list %}
+        <tr>
+          <td data-label="Nome"><a href="{% url 'customers:detail' customer.pk %}"><strong>{{ customer }}</strong></a></td>
+          <td data-label="Documento">{{ customer.cpf_formatted|default:customer.cnpj_formatted|default:"—" }}</td>
+          <td data-label="Telefone">{{ customer.phone_formatted }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="empty">Nenhum cliente encontrado.</p>{% endif %}
+</section>
+{% include "partials/pagination.html" %}
+{% endblock %}

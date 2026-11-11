@@ -1,0 +1,7 @@
+-r base.txt
+coverage>=7.6
+playwright>=1.48   # testes em navegador real (usa o Edge/Chrome já instalado)
+pypdf>=5.0         # testes: leitura do texto do relatório PDF
+pypdfium2>=4.30    # testes: renderização do PDF para conferência visual
+opencv-python-headless>=4.10  # testes: leitura real do QR Code gerado
+aiosmtpd>=1.4      # testes: servidor SMTP local, sem enviar nada para fora

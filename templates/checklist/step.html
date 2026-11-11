@@ -1,0 +1,80 @@
+{% extends "layouts/app.html" %}{% load static %}
+{% block title %}Checklist — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{{ attendance.code }}{% endblock %}
+{% block content %}
+{% include "attendances/_progress.html" %}
+<div class="page-head"><div><h1 class="page-title">Checklist automotivo</h1>
+  <p class="muted">{{ attendance.vehicle.plate_formatted }} — avalie cada componente como OK ou SUBSTITUIR.</p></div></div>
+{% include "attendances/_errors.html" %}
+{% if catalog_empty %}
+<div class="message message--error">O catálogo do checklist está vazio. Rode <code>python manage.py seed_checklist</code> no servidor.</div>
+{% endif %}
+<div class="check-progress" data-check-progress data-total="{{ total }}">
+  <span><span data-check-done>{{ done }}</span> de {{ total }} avaliados</span>
+  <div class="check-progress__bar"><span data-check-bar></span></div>
+</div>
+<form method="post" novalidate data-checklist-form data-autosave-url="{% url 'checklist:autosave' attendance.public_id %}">
+  {% csrf_token %}
+  {% for group in groups %}
+  <details class="check-group" {% if group.pending %}open{% endif %} data-check-group>
+    <summary><span>{{ group.name }}</span><span class="pill{% if not group.pending %} pill--ok{% endif %}" data-group-count>{{ group.total|add:"0" }} itens</span></summary>
+    {% for item in group.items %}
+    <div class="check-row" data-check-item data-kind="item" data-id="{{ item.pk }}">
+      <div class="check-row__main">
+        <span class="check-row__name">{{ item.component_name }}</span>
+        <div class="evaluate" role="radiogroup" aria-label="{{ item.component_name }}">
+          <label class="evaluate__ok"><input type="radio" name="item-{{ item.pk }}" value="{{ OK }}"{% if item.result == OK %} checked{% endif %}>OK</label>
+          <label class="evaluate__bad"><input type="radio" name="item-{{ item.pk }}" value="{{ SUBSTITUIR }}"{% if item.result == SUBSTITUIR %} checked{% endif %}>SUBSTITUIR</label>
+        </div>
+      </div>
+      <small class="save-state" data-save-state role="status"></small>
+      <details class="check-row__extra">
+        <summary>Observação e foto (opcionais)</summary>
+        <div class="check-row__extra-body">
+          <textarea name="notes-{{ item.pk }}" rows="2" aria-label="Observação de {{ item.component_name }}" data-notes>{{ item.notes }}</textarea>
+          {% include "photos/_slot.html" with slot=item.photo_slot %}
+        </div>
+      </details>
+    </div>
+    {% endfor %}
+  </details>
+  {% endfor %}
+
+  <details class="check-group" open data-check-group>
+    <summary><span>Pneus</span><span class="pill" data-group-count>5 posições</span></summary>
+    <div class="tire-grid">
+      {% for tire in tires %}
+      <div class="tire-card" data-check-item data-kind="tire" data-id="{{ tire.pk }}">
+        <div class="tire-card__title">{{ tire.get_position_display }}</div>
+        <div class="evaluate" role="radiogroup" aria-label="Condição do pneu {{ tire.get_position_display }}">
+          <label class="evaluate__ok"><input type="radio" name="tire-{{ tire.pk }}-condition" value="{{ OK }}"{% if tire.condition == OK %} checked{% endif %}>OK</label>
+          <label class="evaluate__bad"><input type="radio" name="tire-{{ tire.pk }}-condition" value="{{ SUBSTITUIR }}"{% if tire.condition == SUBSTITUIR %} checked{% endif %}>SUBSTITUIR</label>
+        </div>
+        <div class="tire-card__values">
+          <div class="field">
+            <label for="psi-{{ tire.pk }}">Calibragem (PSI) <span class="required" aria-hidden="true">*</span></label>
+            <input type="text" inputmode="decimal" id="psi-{{ tire.pk }}" name="tire-{{ tire.pk }}-psi" value="{{ tire.pressure_psi|default_if_none:'' }}" data-tire-field="psi">
+          </div>
+          <div class="field">
+            <label for="twi-{{ tire.pk }}">TWI (mm)</label>
+            <input type="text" inputmode="decimal" id="twi-{{ tire.pk }}" name="tire-{{ tire.pk }}-twi" value="{{ tire.twi_mm|default_if_none:'' }}" data-tire-field="twi">
+          </div>
+        </div>
+        <div data-tire-photo{% if not tire.needs_replacement %} class="is-hidden"{% endif %}>
+          {% include "photos/_slot.html" with slot=tire.photo_slot %}
+        </div>
+        <small class="save-state" data-save-state role="status"></small>
+      </div>
+      {% endfor %}
+    </div>
+  </details>
+
+  <div class="form-actions step-actions">
+    <button type="submit" class="btn btn--primary btn--lg">Salvar e avançar</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/photo-widget.js' %}" defer></script>
+<script src="{% static 'js/checklist.js' %}" defer></script>
+{% endblock %}

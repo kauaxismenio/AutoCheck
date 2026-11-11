@@ -1,0 +1,34 @@
+{% extends "layouts/app.html" %}
+{% block title %}Histórico — {{ APP_NAME }}{% endblock %}
+{% block page_title %}Histórico{% endblock %}
+{% block content %}
+<div class="page-head">
+  <form method="get" class="toolbar toolbar--grow" role="search">
+    <input type="search" name="q" value="{{ q }}" placeholder="Código, placa, cliente ou documento" aria-label="Buscar no histórico">
+    <button class="btn" type="submit">Buscar</button>
+  </form>
+</div>
+<p class="muted">Atendimentos concluídos, mantidos por seis meses após a conclusão.</p>
+<section class="card card--flush">
+  {% if page.object_list %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Código</th><th>Concluído em</th><th>Placa</th><th>Cliente</th><th>Km</th><th>Manter até</th></tr></thead>
+      <tbody>
+      {% for att in page.object_list %}
+        <tr>
+          <td data-label="Código"><a href="{% url 'attendances:summary' att.public_id %}"><strong>{{ att.code }}</strong></a></td>
+          <td data-label="Concluído em">{{ att.completed_at|date:"d/m/Y" }}</td>
+          <td data-label="Placa"><a href="{% url 'vehicles:detail' att.vehicle_id %}">{{ att.vehicle.plate_formatted }}</a></td>
+          <td data-label="Cliente"><a href="{% url 'customers:detail' att.customer_id %}">{{ att.customer }}</a></td>
+          <td data-label="Km">{{ att.mileage }}</td>
+          <td data-label="Manter até">{{ att.retention_until|date:"d/m/Y" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="empty">Nenhum atendimento concluído encontrado.</p>{% endif %}
+</section>
+{% include "partials/pagination.html" %}
+{% endblock %}

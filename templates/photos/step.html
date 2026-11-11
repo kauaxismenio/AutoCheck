@@ -1,0 +1,29 @@
+{% extends "layouts/app.html" %}{% load static %}
+{% block title %}{{ title }} — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{{ attendance.code }}{% endblock %}
+{% block content %}
+{% include "attendances/_progress.html" %}
+<div class="page-head"><div><h1 class="page-title">{{ title }}</h1><p class="muted">{{ intro }}</p></div></div>
+{% include "attendances/_errors.html" %}
+{% if show_summary %}
+<details class="card summary-block">
+  <summary><strong>Resumo do cliente e do veículo</strong> — {{ attendance.vehicle.plate_formatted }}, {{ attendance.customer }}</summary>
+  <div class="details-body">{% include "attendances/_identification.html" %}</div>
+</details>
+{% endif %}
+<section class="card">
+  <h2 class="section-title">Fotografias obrigatórias</h2>
+  <div class="photo-grid">{% for slot in slots.required %}{% include "photos/_slot.html" %}{% endfor %}</div>
+</section>
+{% if slots.optional %}
+<section class="card">
+  <h2 class="section-title">Fotografias opcionais</h2>
+  <p class="muted">Arranhões, avarias, danos existentes e detalhes. Pode enviar várias fotos em cada grupo.</p>
+  <div class="photo-grid">{% for slot in slots.optional %}{% include "photos/_slot.html" %}{% endfor %}</div>
+</section>
+{% endif %}
+<form method="post" class="form-actions step-actions">{% csrf_token %}
+  <button type="submit" class="btn btn--primary btn--lg">Confirmar fotos e avançar</button>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/photo-widget.js' %}" defer></script>{% endblock %}

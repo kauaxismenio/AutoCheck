@@ -1,0 +1,90 @@
+{% extends "layouts/app.html" %}
+{% block title %}Configurações — {{ APP_NAME }}{% endblock %}
+{% block page_title %}Configurações{% endblock %}
+{% block content %}
+{% include "partials/form_errors.html" %}
+<form method="post" enctype="multipart/form-data" class="card form-grid" novalidate>
+  {% csrf_token %}
+  <h2 class="section-title form-grid__full">Dados da oficina</h2>
+  {% include "partials/field.html" with field=form.name wrapper_class="form-grid__full" %}
+  {% include "partials/field.html" with field=form.cnpj %}
+  {% include "partials/field.html" with field=form.phone %}
+  {% include "partials/field.html" with field=form.address wrapper_class="form-grid__full" %}
+  {% include "partials/field.html" with field=form.report_email wrapper_class="form-grid__full" %}
+  <div class="field form-grid__full{% if form.logo.errors %} field--error{% endif %}">
+    <label for="{{ form.logo.id_for_label }}">Logotipo</label>
+    {% if workshop.logo %}<img class="logo-preview" src="{% url 'workshop:logo' %}" alt="Logotipo atual">{% endif %}
+    {{ form.logo }}
+    {% for error in form.logo.errors %}<small class="field__error">{{ error }}</small>{% endfor %}
+  </div>
+  <div class="form-actions form-grid__full"><button type="submit" class="btn btn--primary">Salvar</button></div>
+</form>
+
+<section class="card settings-section" id="avaliacao-google">
+  <h2 class="section-title">Avaliação no Google</h2>
+  <div class="review-settings">
+    <form method="post" action="{% url 'workshop:review_link' %}" class="review-settings__form" novalidate>
+      {% csrf_token %}
+      {% include "partials/field.html" with field=review_form.google_review_url %}
+      <button type="submit" class="btn btn--primary">Salvar link</button>
+    </form>
+    {% if workshop.google_review_url %}
+    <div class="review-settings__preview">
+      <img class="qr-image" src="{% url 'workshop:review_qr' %}" alt="QR Code do link de avaliação da oficina" width="200" height="200">
+      <a class="btn btn--sm" href="{% url 'workshop:review_qr_download' %}" download>Baixar QR Code (PNG)</a>
+    </div>
+    {% else %}
+    <p class="muted review-settings__preview">O QR Code aparece aqui depois que o link for salvo.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="card settings-section">
+  <div class="section-head">
+    <h2 class="section-title">Acesso da oficina</h2>
+    <a class="btn btn--sm" href="{% url 'accounts:change_password' %}">Alterar senha</a>
+  </div>
+  <p class="muted">Login: <strong>{{ request.user.username }}</strong>. Todos que usam este acesso veem o dashboard e as configurações.</p>
+</section>
+
+<section class="card settings-section">
+  <div class="section-head">
+    <h2 class="section-title">Vendedores/Atendentes</h2>
+    <a class="btn btn--sm" href="{% url 'employees:list' %}">Gerenciar vendedores/atendentes</a>
+  </div>
+  <p class="muted">Quem realiza o atendimento, sem login nem senha. É selecionado ao iniciar cada atendimento.</p>
+</section>
+
+<section class="card settings-section">
+  <div class="section-head">
+    <h2 class="section-title">Mecânicos</h2>
+    <a class="btn btn--sm" href="{% url 'mechanics:list' %}">Gerenciar mecânicos</a>
+  </div>
+  <p class="muted">Cadastro separado, sem login nem senha. Também é possível incluir um mecânico ao abrir o atendimento.</p>
+</section>
+
+<section class="card settings-section">
+  <h2 class="section-title">Serviço de e-mail</h2>
+  <p class="muted">Definido no arquivo <code>.env</code> do servidor. As senhas não são exibidas aqui.</p>
+  <dl class="data-list">
+    <dt>Servidor SMTP</dt><dd>{% if status.smtp_host %}{{ status.smtp_host }}:{{ status.smtp_port }}{% else %}<span class="pill pill--warn">Não configurado</span>{% endif %}</dd>
+    <dt>Usuário</dt><dd>{% if status.smtp_user_set %}Definido{% else %}Não definido{% endif %}</dd>
+    <dt>Senha</dt><dd>{% if status.smtp_password_set %}Definida{% else %}Não definida{% endif %}</dd>
+    <dt>Remetente</dt><dd>{{ status.smtp_from }}</dd>
+  </dl>
+  {% url 'mailing:test' as mail_test_url %}
+  {% if mail_test_url %}
+  <form method="post" action="{{ mail_test_url }}">{% csrf_token %}
+    <button type="submit" class="btn btn--sm">Enviar e-mail de teste ao responsável</button>
+  </form>
+  {% endif %}
+</section>
+
+<section class="card settings-section">
+  <h2 class="section-title">Integrações externas</h2>
+  <dl class="data-list">
+    <dt>Consulta de CNPJ</dt><dd>BrasilAPI (gratuita, sem credencial)</dd>
+    <dt>Sistema de gestão</dt><dd>{% if status.management_configured %}Endereço definido; integração aguardando documentação{% else %}<span class="pill pill--warn">Aguardando documentação e credenciais</span>{% endif %}</dd>
+  </dl>
+</section>
+{% endblock %}

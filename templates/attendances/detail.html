@@ -1,0 +1,14 @@
+{% extends "layouts/app.html" %}
+{% block title %}{{ attendance.code }} — {{ APP_NAME }}{% endblock %}
+{% block page_title %}Atendimento {{ attendance.code }}{% endblock %}
+{% block content %}
+<a class="back-link" href="{% url 'attendances:list' %}">‹ Atendimentos</a>
+<section class="card">
+  <dl class="data-list">
+    <dt>Cliente</dt><dd>{{ attendance.customer }}</dd>
+    <dt>Veículo</dt><dd>{{ attendance.vehicle }}</dd>
+    <dt>Quilometragem</dt><dd>{{ attendance.mileage }} km</dd>
+    <dt>Situação</dt><dd>{{ attendance.get_status_display }}</dd>
+  </dl>
+</section>
+{% endblock %}

@@ -1,0 +1,60 @@
+# Segredos e ambiente (.env.example é o único versionado)
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+
+# Banco local e cópias
+db.sqlite3
+*.sqlite3
+*.sqlite3-journal
+*.db
+*.dump
+*.bak
+
+# Arquivos privados de clientes (fotos, assinaturas, PDFs) — nunca versionar
+private_media/*
+!private_media/.gitkeep
+media/*
+!media/.gitkeep
+
+# Estáticos coletados
+staticfiles/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Logs
+*.log
+logs/
+
+# Capturas e temporários dos testes
+e2e/_shots/
+.test_tmp/
+
+# Editores / SO
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Backups locais (contêm banco, mídias e .env)
+backups/
+backup*/
+
+# Configurações locais do Claude Code
+.claude/settings.local.json

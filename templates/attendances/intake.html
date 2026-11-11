@@ -1,0 +1,73 @@
+{% extends "layouts/app.html" %}{% load static %}
+{% block title %}Cliente e veículo — {{ APP_NAME }}{% endblock %}
+{% block page_title %}{% if attendance %}Atendimento {{ attendance.code }}{% else %}Novo atendimento{% endif %}{% endblock %}
+{% block content %}
+{% if steps %}{% include "attendances/_progress.html" %}{% else %}
+<nav class="steps" aria-label="Etapas do atendimento">
+  <ol>
+    <li class="steps__item steps__item--current is-active" aria-current="step"><span class="steps__inner"><span class="steps__dot">1</span><span class="steps__label">Cliente e veículo</span></span></li>
+    <li class="steps__item steps__item--pending"><span class="steps__inner"><span class="steps__dot">2</span><span class="steps__label">Check-in</span></span></li>
+    <li class="steps__item steps__item--pending"><span class="steps__inner"><span class="steps__dot">3</span><span class="steps__label">Checklist</span></span></li>
+    <li class="steps__item steps__item--pending"><span class="steps__inner"><span class="steps__dot">4</span><span class="steps__label">Serviços e peças</span></span></li>
+    <li class="steps__item steps__item--pending"><span class="steps__inner"><span class="steps__dot">5</span><span class="steps__label">Check-out</span></span></li>
+    <li class="steps__item steps__item--pending"><span class="steps__inner"><span class="steps__dot">6</span><span class="steps__label">Revisão e assinatura</span></span></li>
+  </ol>
+</nav>
+{% endif %}
+{% include "partials/form_errors.html" %}
+<form method="post" novalidate data-person-form
+      data-cnpj-url="{% url 'integrations:cnpj' %}" data-cpf-url="{% url 'integrations:cpf' %}" data-plate-url="{% url 'integrations:plate' %}">
+  {% csrf_token %}
+  <section class="card form-grid">
+    <h2 class="section-title form-grid__full">Atendimento</h2>
+    {% include "partials/field.html" with field=form.attendant wrapper_class="form-grid__full" %}
+    {% if not form.attendant.field.queryset.exists %}
+    <p class="muted form-grid__full">Nenhum vendedor/atendente cadastrado.
+      <a href="{% url 'employees:create' %}">Cadastrar vendedor/atendente</a>
+    </p>
+    {% endif %}
+  </section>
+
+  <section class="card form-grid">
+    <h2 class="section-title form-grid__full">Identificação do cliente</h2>
+    {% include "customers/_person_fields.html" %}
+  </section>
+
+  <section class="card form-grid">
+    <h2 class="section-title form-grid__full">Contato</h2>
+    {% include "partials/field.html" with field=form.phone %}
+    {% include "partials/field.html" with field=form.email wrapper_class="js-email" %}
+    {% include "partials/field.html" with field=form.email_opt_out wrapper_class="form-grid__full" %}
+  </section>
+
+  <section class="card form-grid">
+    <h2 class="section-title form-grid__full">Veículo</h2>
+    {% include "partials/field.html" with field=form.plate wrapper_class="js-plate" %}
+    {% include "partials/field.html" with field=form.brand %}
+    {% include "partials/field.html" with field=form.model %}
+    {% include "partials/field.html" with field=form.year %}
+    {% include "partials/field.html" with field=form.color %}
+    {% include "partials/field.html" with field=form.mileage %}
+    <div class="form-grid__full mechanic-field" data-mechanic-field>
+      {% include "partials/field.html" with field=form.mechanic force_required=True %}
+      <button type="button" class="btn btn--ghost btn--sm is-hidden" data-mechanic-toggle
+              data-label-add="+ Adicionar novo mecânico" data-label-list="Escolher da lista">+ Adicionar novo mecânico</button>
+      {% include "partials/field.html" with field=form.new_mechanic_name wrapper_class="mechanic-field__new" %}
+    </div>
+  </section>
+
+  <section class="card form-grid">
+    {% include "partials/field.html" with field=form.origin wrapper_class="form-grid__full" %}
+  </section>
+
+  <div class="form-actions step-actions">
+    <button type="submit" class="btn btn--primary btn--lg">{% if attendance %}Salvar e continuar{% else %}Salvar e ir para o check-in{% endif %}</button>
+  </div>
+</form>
+{% if attendance %}
+<form method="post" action="{% url 'attendances:cancel' attendance.public_id %}" class="cancel-form" data-confirm="Cancelar este atendimento? Ele ficará somente para consulta.">{% csrf_token %}
+  <button type="submit" class="btn btn--danger btn--sm">Cancelar atendimento</button>
+</form>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/person-form.js' %}" defer></script><script src="{% static 'js/mechanic-field.js' %}" defer></script>{% endblock %}

@@ -1,0 +1,8 @@
+# Dependências comuns (todas gratuitas e de código aberto)
+Django>=5.2,<5.3            # LTS, suporte até abril/2028; Python 3.10–3.13
+python-dotenv>=1.0,<2.0     # lê o arquivo .env
+Pillow>=11.0                # ImageField, redimensionamento e remoção de EXIF das fotos
+reportlab>=4.2              # geração do relatório PDF (Python puro, funciona no Windows)
+segno>=1.6,<2.0             # QR Code do link de avaliação (Python puro, sem dependências)
+requests>=2.32,<3.0         # integrações HTTP (BrasilAPI, sistema de gestão)
+whitenoise>=6.7,<7.0        # serve arquivos estáticos públicos (CSS/JS/ícones)

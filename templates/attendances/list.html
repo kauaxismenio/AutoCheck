@@ -1,0 +1,38 @@
+{% extends "layouts/app.html" %}
+{% block title %}Atendimentos — {{ APP_NAME }}{% endblock %}
+{% block page_title %}Atendimentos{% endblock %}
+{% block content %}
+<div class="page-head">
+  <form method="get" class="toolbar toolbar--grow" role="search">
+    <input type="search" name="q" value="{{ q }}" placeholder="Código, placa, cliente ou documento" aria-label="Buscar atendimento">
+    <select name="situacao" aria-label="Situação">
+      <option value="">Todas as situações</option>
+      {% for value, label in status_choices %}<option value="{{ value }}"{% if value == status %} selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button class="btn" type="submit">Buscar</button>
+  </form>
+  <a class="btn btn--primary" href="{% url 'attendances:new' %}">+ Novo atendimento</a>
+</div>
+<section class="card card--flush">
+  {% if page.object_list %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Código</th><th>Placa</th><th>Cliente</th><th>Mecânico</th><th>Etapa</th><th>Abertura</th></tr></thead>
+      <tbody>
+      {% for att in page.object_list %}
+        <tr>
+          <td data-label="Código"><a href="{% url 'attendances:detail' att.public_id %}"><strong>{{ att.code }}</strong></a></td>
+          <td data-label="Placa">{{ att.vehicle.plate_formatted }}</td>
+          <td data-label="Cliente">{{ att.customer }}</td>
+          <td data-label="Mecânico">{{ att.mechanic }}</td>
+          <td data-label="Etapa">{% include "attendances/_status_pill.html" %}</td>
+          <td data-label="Abertura">{{ att.created_at|date:"d/m/Y H:i" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="empty">Nenhum atendimento encontrado.</p>{% endif %}
+</section>
+{% include "partials/pagination.html" %}
+{% endblock %}
